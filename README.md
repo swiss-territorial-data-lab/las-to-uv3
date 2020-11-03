@@ -11,10 +11,13 @@ For the moment, this is taking only LiDAR data in the Swiss Coordinate System (C
 ```
 $ python3 las-to-uv3.py -i /home/user/path/to/las/file.las -o /home/user/path/to/output.uv3 
 ```
+![Image of the Eratosthene Platform with an injected LiDAR file coloured by elevation](/home/huriel/Pictures/frauenfeld_height.png)
 
 ### Classification
 
 If you're willing to colour your las file based on classification values, this is the argument you should set as 1 (=*True*), as in the example below. Sometimes classification values do not follow a general rule. If this is the case, you'll need to look in the raw code to change colours and classification values based on your specific case.
+
+![Image of the Eratosthene Platform with an injected LiDAR file coloured by classification](/home/huriel/Pictures/bassenges_class.png)
 
 ```
 $ python3 las-to-uv3.py -i /home/user/path/to/las/file.las -o /home/user/path/to/output.uv3 -c 1
@@ -27,6 +30,9 @@ If what you're really wanting to explore is intensity values, this is the argume
 ```
 $ python3 las-to-uv3.py -i /home/user/path/to/las/file.las -o /home/user/path/to/output.uv3 -t 1
 ``` 
+
+![Image of the Eratosthene Platform with an injected LiDAR file coloured by classification](/home/huriel/Pictures/bassenges_intensity.png)
+
 
 ### RGB
 
