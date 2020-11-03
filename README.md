@@ -25,7 +25,7 @@ $ python3 las-to-uv3.py -i /home/user/path/to/las/file.las -o /home/user/path/to
 If what you're really wanting to explore is intensity values, this is the argument you should set as 1:
 
 ```
-$ python3 las-to-uv3.py -i /home/user/path/to/las/file.las -o /home/user/path/to/output.uv3 -t True
+$ python3 las-to-uv3.py -i /home/user/path/to/las/file.las -o /home/user/path/to/output.uv3 -t 1
 ``` 
 
 ### RGB

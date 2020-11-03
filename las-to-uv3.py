@@ -3,6 +3,7 @@
 #
 #     Huriel Reichel - huriel.ruan@gmail.com
 #     Nils Hamel - nils.hamel@bluewin.ch
+#     Alessandro Cerioni - alessandro.cerioni@etat.ge.ch
 #     Copyright (c) 2020 STDL, Swiss Territorial Data Lab
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -19,12 +20,13 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from laspy.file import File
-from struct import *
+from struct import pack
 
 import argparse
 import math
 import sys
 import os
+import time
 from matplotlib import cm
 
 # Defining scaling functions
@@ -96,9 +98,22 @@ class GPSConverter(object):
     
 # Main function
 def las_to_uv3(input, output, classification, intensity, rgb):
-
-    inFile = File(input, mode='r')
     
+    # reading LiDAR data
+    inFile = File(input, mode='r')
+
+    # defining values for the colour pallete, for both height and intensity
+    h = (inFile.z + 49.55) - (12.60 * ((inFile.y - 2600000) / 1000000)) - (22.64 * ((inFile.x - 1200000) / 1000000))
+    min_h = min(h)
+    max_h = max(h)
+
+    min_t = min(inFile.intensity)
+    max_t = max(inFile.intensity) / 100
+    
+    # defining colour pallete
+    inferno = cm.get_cmap('inferno', 100) 
+    
+    # Colours based on height
     if (rgb == 0 and classification == 0 and intensity == 0):
         
         print("colouring by elevation")
@@ -127,14 +142,12 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 Y = wgs84[0]
                 Z = wgs84[2]
                 
-                # converting from degreed to radians
+                # converting from degrees to radians
                 X = X * (math.pi / 180) 
                 Y = Y * (math.pi / 180) 
                 
                 # colouring based on elevation
-                h = (inFile.z + 49.55) - (12.60 * ((inFile.y - 2600000) / 1000000)) - (22.64 * ((inFile.x - 1200000) / 1000000))
-                feat_scal = ( Z - min(h)) / (max(h) - min(h))
-                inferno = cm.get_cmap('inferno', 100) 
+                feat_scal = ( Z - min_h) / (max_h - min_h)  
                 pal = inferno(feat_scal)
                                 
                 R = pal[0] * 255
@@ -149,6 +162,7 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 uv3.write( pm_buffer )      
             #print( X, Y, Z, 1, R, G, B ) # in chase you want to print results as the former Octave code
     
+    # Colours based on given RGB values
     elif (rgb == 1 and classification == 0 and intensity == 0):
         
         print("colouring by given RGB")
@@ -177,7 +191,7 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 Y = wgs84[0]
                 Z = wgs84[2]
                
-                # converting from degreed to radians
+                # converting from degrees to radians
                 X = X * (math.pi / 180) 
                 Y = Y * (math.pi / 180) 
                 
@@ -191,6 +205,7 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 uv3.write( pm_buffer )
             #print( X, Y, Z, 1, R, G, B ) # in chase you want to print results as the former Octave code
          
+    # Colours based on raw classification
     elif (rgb == 0 and classification == 1 and intensity == 0 ):
         
         print("colouring by classification")
@@ -218,7 +233,7 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 Y = wgs84[0]
                 Z = wgs84[2]
                
-                # converting from degreed to radians
+                # converting from degrees to radians
                 X = X * (math.pi / 180) 
                 Y = Y * (math.pi / 180) 
                 
@@ -319,7 +334,8 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 pm_buffer = pack( '<dddBBBB', X, Y, Z, 1, R, G, B )
                 uv3.write( pm_buffer )
             #print( X, Y, Z, 1, R, G, B ) # in chase you want to print results as the former Octave code
-         
+    
+    # Colours based on intensity
     else :
        
         print("colouring by intensity")
@@ -353,13 +369,12 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 
                 # colouring by intensity
                 I = inFile.points[i][0][3]
-                feat_scal = ( I - min(inFile.intensity)) / (max(inFile.intensity) - min(inFile.intensity))
-                inferno = cm.get_cmap('inferno', 100) 
+                feat_scal = ( I - min_t) / ( max_t - min_t )
                 pal = inferno(feat_scal)
                 
                 R = pal[0] * 255
                 G = pal[1] * 255
-                B = pal[3] * 255
+                B = pal[2] * 255
                 R = R.astype(int)
                 G = G.astype(int)
                 B = B.astype(int)
@@ -384,8 +399,12 @@ pm_args = pm_argparse.parse_args()
 # display message #
 print( 'Processing file : ' + os.path.basename( pm_args.input ) + '...' )
 
+tic = time.time()
+
 # process file #
 las_to_uv3( pm_args.input, pm_args.output, pm_args.classification, pm_args.intensity, pm_args.rgb )
 
+toc = time.time()
+
 # exit script #
-sys.exit( 'Done' )
+sys.exit(f'Done. Elapsed time = {(toc-tic):.2f} seconds.' )
