@@ -46,7 +46,7 @@ This option hasn't been tested yet.
 
 # Copyright and License
 
-las-to-uv3 - Huriel Reichel Nils Hamel
+las-to-uv3 - Huriel Reichel Nils Hamel Alessandro Cerioni
 Copyright (c) 2020 STDL, Swiss Territorial Data Lab
 
 This program is licensed under the terms of the GNU GPLv3. Documentation and illustrations are licensed under the terms of the CC BY-NC-SA.
