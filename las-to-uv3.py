@@ -4,7 +4,7 @@
 #     Huriel Reichel - huriel.ruan@gmail.com
 #     Nils Hamel - nils.hamel@bluewin.ch
 #     Alessandro Cerioni - alessandro.cerioni@etat.ge.ch
-#     Copyright (c) 2020 STDL, Swiss Territorial Data Lab
+#     Copyright (c) 2020 Republic and Canton of Geneva
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ def las_to_uv3(input, output, classification, intensity, rgb):
     min_t = min(inFile.intensity)
     max_t = max(inFile.intensity) / 100
     
-    # defining colour pallete
+    # defining colour palette
     inferno = cm.get_cmap('inferno', 100) 
     
     # Colours based on height
