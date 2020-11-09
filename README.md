@@ -11,6 +11,7 @@ As LiDAR files are usually big, this can be time-demanding, but shouldn't make y
 ```
 $ python3 las-to-uv3.py -i /home/user/path/to/las/file.las -o /home/user/path/to/output.uv3 
 ```
+
 ![Image of the Eratosthene Platform with an injected LiDAR file coloured by elevation](frauenfeld_height.png)
 
 ### Classification
