@@ -97,7 +97,7 @@ class GPSConverter(object):
         return d
     
 # Main function
-def las_to_uv3(input, output, classification, intensity, rgb):
+def las_to_uv3(input, output, classification, intensity, rgb, palette, swiss):
     
     # reading LiDAR data
     inFile = File(input, mode='r')
@@ -111,7 +111,7 @@ def las_to_uv3(input, output, classification, intensity, rgb):
     max_t = max(inFile.intensity) / 100
     
     # defining colour palette
-    inferno = cm.get_cmap('inferno', 100) 
+    pal = cm.get_cmap(palette, 100) 
     
     # Colours based on height
     if (rgb == 0 and classification == 0 and intensity == 0):
@@ -131,28 +131,29 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 Y = Y * inFile.header.scale[1] + inFile.header.offset[1]
                 
                 Z = inFile.points[i][0][2]
-                Z = Z / 100
+                Z = Z * inFile.header.scale[2] + inFile.header.offset[2]
                 
-                # An argument shall be passed to this coordinate system conversion step  
-                converter = GPSConverter()
-                lv03 = [X, Y, Z]
-                wgs84 = converter.LV03toWGS84(lv03[0], lv03[1], lv03[2])
+                # if statement for converting from CH1903+ to WGS84 
+                if (swiss == 1):
+                    converter = GPSConverter()
+                    lv03 = [X, Y, Z]
+                    wgs84 = converter.LV03toWGS84(lv03[0], lv03[1], lv03[2])
                 
-                X = wgs84[1]
-                Y = wgs84[0]
-                Z = wgs84[2]
-                
+                    X = wgs84[1]
+                    Y = wgs84[0]
+                    Z = wgs84[2]
+                    
                 # converting from degrees to radians
                 X = X * (math.pi / 180) 
                 Y = Y * (math.pi / 180) 
                 
                 # colouring based on elevation
                 feat_scal = ( Z - min_h) / (max_h - min_h)  
-                pal = inferno(feat_scal)
+                col = pal(feat_scal)
                                 
-                R = pal[0] * 255
-                G = pal[1] * 255
-                B = pal[2] * 255
+                R = col[0] * 255
+                G = col[1] * 255
+                B = col[2] * 255
                 R = R.astype(int)
                 G = G.astype(int)
                 B = B.astype(int)
@@ -180,16 +181,17 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 Y = Y * inFile.header.scale[1] + inFile.header.offset[1]
                 
                 Z = inFile.points[i][0][2]
-                Z = Z / 100
+                Z = Z * inFile.header.scale[2] + inFile.header.offset[2]
                 
-                # An argument shall be passed to this coordinate system conversion step  
-                converter = GPSConverter()
-                lv03 = [X, Y, Z]
-                wgs84 = converter.LV03toWGS84(lv03[0], lv03[1], lv03[2])
+                # if statement for converting from CH1903+ to WGS84 
+                if (swiss == 1):
+                    converter = GPSConverter()
+                    lv03 = [X, Y, Z]
+                    wgs84 = converter.LV03toWGS84(lv03[0], lv03[1], lv03[2])
                 
-                X = wgs84[1]
-                Y = wgs84[0]
-                Z = wgs84[2]
+                    X = wgs84[1]
+                    Y = wgs84[0]
+                    Z = wgs84[2]
                
                 # converting from degrees to radians
                 X = X * (math.pi / 180) 
@@ -222,17 +224,18 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 Y = Y * inFile.header.scale[1] + inFile.header.offset[1]
                 
                 Z = inFile.points[i][0][2]
-                Z = Z / 100
+                Z = Z * inFile.header.scale[2] + inFile.header.offset[2]
                 
-                # An argument shall be passed to this coordinate system conversion step  
-                converter = GPSConverter()
-                lv03 = [X, Y, Z]
-                wgs84 = converter.LV03toWGS84(lv03[0], lv03[1], lv03[2])
+                # if statement for converting from CH1903+ to WGS84 
+                if (swiss == 1):
+                    converter = GPSConverter()
+                    lv03 = [X, Y, Z]
+                    wgs84 = converter.LV03toWGS84(lv03[0], lv03[1], lv03[2])
                 
-                X = wgs84[1]
-                Y = wgs84[0]
-                Z = wgs84[2]
-               
+                    X = wgs84[1]
+                    Y = wgs84[0]
+                    Z = wgs84[2]
+                
                 # converting from degrees to radians
                 X = X * (math.pi / 180) 
                 Y = Y * (math.pi / 180) 
@@ -280,13 +283,7 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 if inFile.points[i][0][5] == 7:
                     R = 0
                     G = 0
-                    B = 156
-                
-                # reserved *
-                if inFile.points[i][0][5] == 8:
-                    R = 255
-                    G = 255
-                    B = 255
+                    B = 156     
                         
                 # water
                 if inFile.points[i][0][5] == 9:
@@ -307,7 +304,7 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                     B = 0
                                                          
                 # wire 
-                if inFile.points[i][0][5] >= 13 and inFile.points[i][0][5] < 15:
+                if inFile.points[i][0][5] >= 13 and inFile.points[i][0][5] < 15 and inFile.points[i][0][5] == 16:
                     R = 32
                     G = 0
                     B = 124    
@@ -317,12 +314,6 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                     R = 248
                     G = 240
                     B = 92
-                
-                # wire 
-                if inFile.points[i][0][5] == 16:
-                    R = 32
-                    G = 0
-                    B = 124
                 
                 # bridge deck 
                 if inFile.points[i][0][5] == 17:
@@ -352,29 +343,30 @@ def las_to_uv3(input, output, classification, intensity, rgb):
                 Y = Y * inFile.header.scale[1] + inFile.header.offset[1]
                 
                 Z = inFile.points[i][0][2]
-                Z = Z / 100
+                Z = Z * inFile.header.scale[2] + inFile.header.offset[2]
                 
-                # An argument shall be passed to this coordinate system conversion step  
-                converter = GPSConverter()
-                lv03 = [X, Y, Z]
-                wgs84 = converter.LV03toWGS84(lv03[0], lv03[1], lv03[2])
+                # if statement for converting from CH1903+ to WGS84 
+                if (swiss == 1):
+                    converter = GPSConverter()
+                    lv03 = [X, Y, Z]
+                    wgs84 = converter.LV03toWGS84(lv03[0], lv03[1], lv03[2])
                 
-                X = wgs84[1]
-                Y = wgs84[0]
-                Z = wgs84[2]
-               
-                # converting from degreed to radians
+                    X = wgs84[1]
+                    Y = wgs84[0]
+                    Z = wgs84[2]
+
+                # converting from degrees to radians
                 X = X * (math.pi / 180) 
                 Y = Y * (math.pi / 180) 
                 
                 # colouring by intensity
                 I = inFile.points[i][0][3]
                 feat_scal = ( I - min_t) / ( max_t - min_t )
-                pal = inferno(feat_scal)
+                col = pal(feat_scal)
                 
-                R = pal[0] * 255
-                G = pal[1] * 255
-                B = pal[2] * 255
+                R = col[0] * 255
+                G = col[1] * 255
+                B = col[2] * 255
                 R = R.astype(int)
                 G = G.astype(int)
                 B = B.astype(int)
@@ -392,6 +384,9 @@ pm_argparse.add_argument( '-o', '--output' , type=str  , help='uv3 output path' 
 pm_argparse.add_argument( '-r', '--rgb', type=int, default = 0, help='whether rgb values are recorded in the las file. Default to False' )
 pm_argparse.add_argument( '-c', '--classification', type=int, default = 0, help='whether colours should refer to point classification. Default to False' )
 pm_argparse.add_argument( '-t', '--intensity', type=int, default=0, help='whether colours should refer to intensity. Default to False' )
+pm_argparse.add_argument( '-p', '--palette', type=str, default='inferno' , help='matplotlib colour palette name')
+pm_argparse.add_argument( '-s', '--swiss', type=int, default=0 , help='if set as true (1), this is converting data from the swiss coordinate system CH1093+ (EPSG:2056) to WGS84')
+
 
 # read argument and parameters #
 pm_args = pm_argparse.parse_args()      
@@ -402,7 +397,7 @@ print( 'Processing file : ' + os.path.basename( pm_args.input ) + '...' )
 tic = time.time()
 
 # process file #
-las_to_uv3( pm_args.input, pm_args.output, pm_args.classification, pm_args.intensity, pm_args.rgb )
+las_to_uv3( pm_args.input, pm_args.output, pm_args.classification, pm_args.intensity, pm_args.rgb, pm_args.palette, pm_args.swiss )
 
 toc = time.time()
 
