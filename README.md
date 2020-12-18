@@ -112,3 +112,13 @@ las-to-uv3 - Huriel Reichel Nils Hamel Alessandro Cerioni
 Copyright (c) 2020 Republic and Canton of Geneva
 
 This program is licensed under the terms of the GNU GPLv3. Documentation and illustrations are licensed under the terms of the CC BY-NC-SA.
+
+# Dependecies 
+
+Python 3.8.5 or superior
+
+Packages can be installed either with pip or conda.
+
+* laspy 1.7.0
+
+* matplotlib 3.3.3
